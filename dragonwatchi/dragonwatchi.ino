@@ -1,6 +1,7 @@
 #include <HyperDisplay_KWH018ST01_4WSPI.h>
 
-#include "Textures.h"
+#include "sprites.h"
+#include "anims.h"
 
 #define SERIAL_PORT Serial    // Allows users to easily change target serial port (e.g. SAMD21's SerialUSB)
 
@@ -14,92 +15,94 @@ ILI9163C_color_18_t RED = {0x3f, 0x00, 0x00};
 
 KWH018ST01_4WSPI myTFT;           // The KWH018ST01_4WSPI class is used for this breakout, and we will call our object myTFT
 
-wind_info_t smallWindow;            // Create a window
-ILI9163C_color_18_t smallWindowMem[128*160];
+wind_info_t screenBufferWindow;            // Create a window
 
 #define RED_BTN 39
 #define GREEN_BTN 36
-#define BLUE_BTN 4
-#define YELLOW_BTN 5
+#define BLUE_BTN 5
+#define YELLOW_BTN 4
 
 void setup() {
   SERIAL_PORT.begin(115200);
 
-  SERIAL_PORT.println("Animation test!");
+  SERIAL_PORT.println("Dragon watchi v0");
 
-  pinMode(RED_BTN, INPUT);
-  pinMode(GREEN_BTN, INPUT);
-  pinMode(BLUE_BTN, INPUT);
+  //pinMode(RED_BTN, INPUT);
+  //pinMode(GREEN_BTN, INPUT);
+  //pinMode(BLUE_BTN, INPUT);
   pinMode(YELLOW_BTN, INPUT);
 
   myTFT.begin(DC_PIN, CS_PIN, PWM_PIN, SPI_PORT, SPI_SPEED);
   myTFT.clearDisplay();
 
-  myTFT.setWindowMemory(&smallWindow, (color_t)smallWindowMem, 160*128);    // Make sure that the window knows about the memory
+  myTFT.setWindowMemory(&screenBufferWindow, (color_t)screenBuffer, 160*128);    // Make sure that the window knows about the memory
 
-  smallWindow.xMin = 0;              // Set the paramters to match the buffer size
-  smallWindow.yMin = 0;      
-  smallWindow.xMax = 127;         // See, 16+0 would be one pixel, so 16+31 is actually 32 pixels wide
-  smallWindow.yMax = 159;         // and this means 64 pixels tall.. so now our small window can be filled with 32*64 pixels
+  screenBufferWindow.xMin = 0;              // Set the paramters to match the buffer size
+  screenBufferWindow.yMin = 0;      
+  screenBufferWindow.xMax = 127;         // See, 16+0 would be one pixel, so 16+31 is actually 32 pixels wide
+  screenBufferWindow.yMax = 159;         // and this means 64 pixels tall.. so now our small window can be filled with 32*64 pixels
   
-  myTFT.pCurrentWindow = &smallWindow;    // Switch curent window to small window
+  myTFT.pCurrentWindow = &screenBufferWindow;    // Switch curent window to small window
   myTFT.buffer();                         // Set the current window to buffer mode
   myTFT.show();                           // Show all the changes at conc
 }
 
-int frameIdx = -1;
+SleepingAnim sleepingAnim;
+WokeAnim wokeAnim;
+
+class WorldState {
+  DragonState dragonState;
+};
+
+class SavedState {
+  uint16_t vers = 1;
+  
+  // Buffer our saves, to avoid corruption 
+  bool isFirstWorldValid;
+  WorldState firstWorld;
+  WorldState secondWorld;
+};
+
+enum class DragonState : uint8_t {
+  Sleeping = 0,
+  Woke,
+};
+
+DragonState dragonState = DragonState::Sleeping;
+
 void loop() {
 
-  frameIdx = (frameIdx + 1) % 10;
-
   const ILI9163C_color_18_t* srcPtr = NULL;
-  
-  switch(frameIdx) {
-    case 0:
-      srcPtr = frame1;
-      break;
-    case 1:
-      srcPtr = frame2;
-      break;
-    case 2:
-      srcPtr = frame3;
-      break;
-    case 3:
-      srcPtr = frame4;
-      break;
-    case 4:
-      srcPtr = frame5;
-      break;
-    case 5:
-      srcPtr = frame6;
-      break;
-    case 6:
-      srcPtr = frame7;
-      break;
-    case 7:
-      srcPtr = frame8;
-      break;
-    case 8:
-      srcPtr = frame9;
-      break;
-    case 9:
-      srcPtr = frame10;
-      break;
-  }
-  memcpy_P(smallWindowMem, srcPtr, 160*128*3);  // Necessary casts and dereferencing, just copy.
-  myTFT.show();                           // Show all the changes at conc
-  //delay(50);
 
-  if(digitalRead(RED_BTN)) {
-      SERIAL_PORT.println("Red");
+  switch(dragonState) {
+    case DragonState::Sleeping:
+      sleepingAnim.Draw();
+      
+      if(digitalRead(YELLOW_BTN)) {
+        dragonState = DragonState::Woke;
+      }
+    break;
+    case DragonState::Woke:
+      wokeAnim.Draw();
+      myTFT.show();
+      delay(3000);
+      dragonState = DragonState::Sleeping;
+      sleepingAnim.idx = 0;
+      sleepingAnim.lastDrawMillis = millis();
+    break;
   }
-  if(digitalRead(GREEN_BTN)) {
-      SERIAL_PORT.println("Green");
-  }
-  if(digitalRead(BLUE_BTN)) {
-      SERIAL_PORT.println("Blue");
-  }
-  if(digitalRead(YELLOW_BTN)) {
-      SERIAL_PORT.println("Yellow");
-  }
+  
+  myTFT.show();                           // Show all the changes at conc
+  //delay(100);
+
+  //if(digitalRead(RED_BTN)) {
+  //    SERIAL_PORT.println("Red");
+  //}
+  //if(digitalRead(GREEN_BTN)) {
+  //    SERIAL_PORT.println("Green");
+  //}
+  //if(digitalRead(BLUE_BTN)) {
+  //    SERIAL_PORT.println("Blue");
+  //}
+  
 }
