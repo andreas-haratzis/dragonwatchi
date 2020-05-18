@@ -10,29 +10,59 @@ Anim::Anim(SpriteVec&& sprites, size_t loopIdx)
 
 void Anim::Draw() {
   const unsigned long currMillis = millis();
-  if(currMillis - lastDrawMillis > 1000 / 1) {
+  if(currMillis - lastDrawMillis > 1000) {
     idx = (idx + 1) % sprites.size();
     if(idx == 0) {
       idx = loopIdx;
     }
     lastDrawMillis = currMillis;
   }
-
+  
   const ILI9163C_color_18_t* srcPtr = sprites[idx].get().pixels;
   
-  const ILI9163C_color_18_t MAGENTA{255, 0, 255};
   for(size_t y = 0; y < 160; ++y) {
     for(size_t x = 0; x < 128; ++x) {
       const size_t i = y * 128 + x;
       const ILI9163C_color_18_t& pixel = srcPtr[i];
-      if(pixel == k_magenta) {
-        memcpy_P(screenBuffer + i, sprite_background.pixels + i, 3);
-      } else {
-        memcpy_P(screenBuffer + i, srcPtr + i, 3);
+      if(pixel != k_magenta) {
+        memcpy_P(screenBuffer + i, srcPtr + i, sizeof(ILI9163C_color_18_t));
       }
     }
   }
   
+}
+
+void Anim::Reset() {
+  idx = 0;
+  lastDrawMillis = millis();
+}
+
+DyingAnim::DyingAnim()
+  : Anim({sprite_dying0000, sprite_dying0060}) {
+}
+
+DeadAnim::DeadAnim()
+  : Anim({sprite_dead0000}) {
+}
+
+VibingHungerAnim::VibingHungerAnim()
+  : Anim({sprite_vibing_hunger0000, sprite_vibing_hunger0060}) {
+}
+
+VibingHappyAnim::VibingHappyAnim()
+  : Anim({sprite_vibing_happy0000}) {
+}
+
+VibingNeutralAnim::VibingNeutralAnim()
+  : Anim({sprite_vibing_neutral0000}) {
+}
+
+VibingSadAnim::VibingSadAnim()
+  : Anim({sprite_vibing_dying0000}) {
+}
+
+VibingDyingAnim::VibingDyingAnim()
+  : Anim({sprite_vibing_dying0000}) {
 }
 
 SleepingAnim::SleepingAnim() 

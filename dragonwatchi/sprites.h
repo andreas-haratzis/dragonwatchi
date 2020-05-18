@@ -10,8 +10,20 @@ extern ILI9163C_color_18_t screenBuffer[128*160];
 struct Sprite { int width; int height; int left; int top; const ILI9163C_color_18_t* pixels; };
 
 const extern Sprite sprite_background;
+const extern Sprite sprite_dead0000;
+const extern Sprite sprite_dying0000;
+const extern Sprite sprite_dying0060;
+const extern Sprite sprite_menu_bg0000;
+const extern Sprite sprite_menu_food0000;
+const extern Sprite sprite_menu_selected0000;
 const extern Sprite sprite_sleeping0000;
 const extern Sprite sprite_sleeping0060;
 const extern Sprite sprite_sleeping0120;
+const extern Sprite sprite_vibing_dying0000;
+const extern Sprite sprite_vibing_happy0000;
+const extern Sprite sprite_vibing_hunger0000;
+const extern Sprite sprite_vibing_hunger0060;
+const extern Sprite sprite_vibing_neutral0000;
+const extern Sprite sprite_vibing_sad0000;
 const extern Sprite sprite_woke0000;
 #endif
