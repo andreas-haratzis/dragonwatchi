@@ -3,10 +3,10 @@
 
 #include <HyperDisplay_KWH018ST01_4WSPI.h>
 
-#define RED_BTN 39
-#define GREEN_BTN 36
-#define BLUE_BTN 5
-#define YELLOW_BTN 4
+#define RED_BTN 15
+#define GREEN_BTN 32
+#define BLUE_BTN 14
+#define YELLOW_BTN 22
 #define ZERO_BTN 0
 
 bool operator==(const ILI9163C_color_18_t& a, const ILI9163C_color_18_t& b);
@@ -23,5 +23,7 @@ constexpr auto ToIntegral(E e) -> typename std::underlying_type<E>::type
 {
    return static_cast<typename std::underlying_type<E>::type>(e);
 }
+
+void Halt();
 
 #endif

@@ -1,8 +1,12 @@
 #include "dragon.h"
 #include "utils.h"
 
-TempDragonStates tempDragonState;
+TempDragonStates* tempDragonState;
 DragonState targetState = DragonState::Sleeping;
+
+void InitDragon() {
+  tempDragonState = new TempDragonStates();
+}
 
 TempDragonStates::TempDragonStates()
   : sleeping() {
@@ -76,7 +80,6 @@ void TempDragonStateSleeping::Loop() {
   if(lastFrameDurationMillis > screensaverCountdownMillis) {
     if (digitalRead(YELLOW_BTN)) {
       screensaverCountdownMillis = 1000 * 8;
-      delay(500);
       myTFT.setBacklight(255);
     } else {
       memset(screenBuffer, 255, 160 * 128 * sizeof(ILI9163C_color_18_t));
@@ -88,7 +91,6 @@ void TempDragonStateSleeping::Loop() {
     anim.Draw();
     if (digitalRead(YELLOW_BTN)) {
       targetState = DragonState::Woke;
-      delay(500);
     }
   }
 }

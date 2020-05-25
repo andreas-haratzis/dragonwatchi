@@ -2,56 +2,23 @@
 #define ANIMS_H
 
 #include "sprites.h"
-#include <functional>
+#include <FS.h>
 
-using SpriteVec = std::vector<std::reference_wrapper<const Sprite>>;
+extern ILI9163C_color_18_t screenBuffer[128*160];
+
+using Files = std::vector<File>;
 
 struct Anim {
-  const SpriteVec sprites;
+  Files sprites;
   size_t idx;
   unsigned long lastDrawMillis;
   const size_t loopIdx;
-  
-  Anim(SpriteVec&& sprites, size_t loopIdx = 0);
+
+  static const size_t k_invalidLoopIdx = -1;
+  Anim(Files&& sprites, size_t loopIdx = 0);
   void Draw();
 
   void Reset();
-};
-
-struct DyingAnim : public Anim {
-  DyingAnim();
-};
-
-struct DeadAnim : public Anim {
-  DeadAnim();
-};
-
-struct VibingHungerAnim : public Anim {
-  VibingHungerAnim();
-};
-
-struct VibingHappyAnim : public Anim {
-  VibingHappyAnim();
-};
-
-struct VibingNeutralAnim : public Anim {
-  VibingNeutralAnim();
-};
-
-struct VibingSadAnim : public Anim {
-  VibingSadAnim();
-};
-
-struct VibingDyingAnim : public Anim {
-  VibingDyingAnim();
-};
-
-struct SleepingAnim : public Anim {
-  SleepingAnim();
-};
-
-struct WokeAnim : public Anim {
-  WokeAnim();
 };
 
 #endif

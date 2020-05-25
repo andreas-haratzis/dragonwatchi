@@ -3,16 +3,19 @@
 
 #include "anims.h"
 #include "saveload.h"
+#include "sd.h"
+
+#include <functional>
 
 struct TempDragonStateSleeping {
-  SleepingAnim anim;
+  Anim anim = LoadAnim("sleeping");
   unsigned int screensaverCountdownMillis = 1000 * 8;
 
   void Loop();
 };
 
 struct TempDragonStateWoke {
-  WokeAnim anim;
+  Anim anim = LoadAnim("woke");
   uint16_t backToSleepCountdown = 3000;
 
   void Loop();
@@ -20,18 +23,18 @@ struct TempDragonStateWoke {
 
 struct TempDragonStateVibing {
   uint16_t backToSleepCountdown = 1000 * 60 * 5;
-  VibingHappyAnim happyAnim;
-  VibingNeutralAnim neutralAnim;
-  VibingSadAnim sadAnim;
-  VibingDyingAnim dyingAnim;
-  VibingHungerAnim vibingHungerAnim;
-  DyingAnim dyingWarningAnim;
+  Anim happyAnim = LoadAnim("vibing/happy");
+  Anim neutralAnim = LoadAnim("vibing/neutral");
+  Anim sadAnim = LoadAnim("vibing/sad");
+  Anim dyingAnim = LoadAnim("vibing/dying");
+  Anim vibingHungerAnim = LoadAnim("vibing/hunger");
+  Anim dyingWarningAnim = LoadAnim("vibing/dying");
 
   void Loop();
 };
 
 struct TempDragonStateDead {
-  DeadAnim anim;
+  Anim anim = LoadAnim("dead");
 
   void Loop();
 };
@@ -49,7 +52,9 @@ union TempDragonStates {
   void Loop(DragonState which);
 };
 
-extern TempDragonStates tempDragonState;
+void InitDragon();
+
+extern TempDragonStates* tempDragonState;
 extern DragonState targetState;
 
 #endif
