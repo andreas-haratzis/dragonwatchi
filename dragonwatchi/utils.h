@@ -24,6 +24,8 @@ constexpr auto ToIntegral(E e) -> typename std::underlying_type<E>::type
    return static_cast<typename std::underlying_type<E>::type>(e);
 }
 
+std::string ToLower(const std::string str);
+
 void Halt();
 
 #endif

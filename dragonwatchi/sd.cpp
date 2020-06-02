@@ -81,7 +81,7 @@ void InitSD() {
   
   EnterSD();
   
-  if(!SD.begin(SS, SPI, 4000000, "/sd", 16)){
+  if(!SD.begin(SS, SPI, 4000000, "/sd", 24)){
     Serial.println("Card Mount Failed");
     SDPanic();
   }
@@ -161,10 +161,23 @@ Sprite LoadSprite(File& file) {
     pixelsOffset = fileHeader.bfOffBits;
   }
 
-  // Avoid allocating too much mem: Use the existing bmp allocation 
+  // Avoid allocating too much mem: once we've extracted the important info from the header
+  // move the pixel data to the start of the allocation (thereby obliterating the headers)
   memmove(bmpMem, bmpMem + pixelsOffset, size);
   bmpMem = (unsigned char*)realloc(bmpMem, size);
 
+  // Handle BMP padding (rows in BMPs are padded to a multiple of 4 bytes) 
+  if(size != width * height * 3) {
+    size_t cursor = 0;
+    for(size_t row = 0; row < height; ++row) {
+      memmove(bmpMem + (row * width * 3), bmpMem + cursor, width * 3);
+      cursor += width * 3;
+      cursor += width % 4;
+    }
+    size = width * height * 3;
+    bmpMem = (unsigned char*)realloc(bmpMem, size);
+  }
+  
   // BMPs are in BGR, we want RGB
   for(size_t i = 0; i < size / 3; ++i) {
     const uint8_t t = bmpMem[i*3];
@@ -173,7 +186,7 @@ Sprite LoadSprite(File& file) {
   }
 
   ExitSD();
-    
+
   // FIXME: Leak here! where do we cleanup the pixels? destructor?
   Sprite newSprite{width, height, (const ILI9163C_color_18*)bmpMem};
   
@@ -211,16 +224,30 @@ Anim LoadAnim(const char* name) {
       if(name.size() > 4 && name[name.size() - 3] == '.' && name[name.size() - 2] == 'g' && name[name.size() - 1] == 'z') {
         sprites.push_back(file);
       } else {
-        Serial.print("Ignoring non GZ ");
-        Serial.println(file.name());
+        //Serial.print("Ignoring non GZ ");
+        //Serial.println(file.name());
       }
     }
     file = root.openNextFile();
+  }
+
+  std::sort(sprites.begin(), sprites.end(), [](const File& a, const File& b){
+    return std::string(a.name()) < std::string(b.name());
+  });
+
+  const std::string k_loopPostfix("_loop");
+  size_t loopIdx = Anim::k_invalidLoopIdx;
+  for(size_t i = 0; i < sprites.size(); ++i) {
+    const std::string name(sprites[i].name());
+    if(name.find(k_loopPostfix) != std::string::npos) {
+      loopIdx = i;
+      break;
+    }
   }
   
   delete path;
   ExitSD();
 
-  Anim newAnim{std::move(sprites), 0};
+  Anim newAnim{std::move(sprites), loopIdx};
   return newAnim;
 }

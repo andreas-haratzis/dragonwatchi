@@ -88,6 +88,10 @@ void loop() {
 
     tempDragonState->SwitchTo(world.dragonState, targetState);
     world.dragonState = targetState;
+
+    if(world.dragonState == DragonState::Vibing) {
+      save();
+    }
   }
 
   myTFT.show();                           // Show all the changes at conc

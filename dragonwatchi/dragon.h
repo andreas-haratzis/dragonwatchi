@@ -39,11 +39,18 @@ struct TempDragonStateDead {
   void Loop();
 };
 
+struct TempDragonStateFeeding {
+  Anim anim = LoadAnim("feeding");
+
+  void Loop();
+};
+
 union TempDragonStates {
   TempDragonStateSleeping sleeping;
   TempDragonStateWoke woke;
   TempDragonStateVibing vibing;
   TempDragonStateDead dead;
+  TempDragonStateFeeding feeding;
   
   TempDragonStates();
   ~TempDragonStates();

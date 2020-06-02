@@ -32,6 +32,10 @@ void TempDragonStates::SwitchTo(DragonState from, DragonState to) {
       dead.~TempDragonStateDead();
       break;
     }
+    case DragonState::Feeding: {
+      feeding.~TempDragonStateFeeding();
+      break;
+    }
   }
 
   switch (to) {
@@ -49,6 +53,10 @@ void TempDragonStates::SwitchTo(DragonState from, DragonState to) {
     }
     case DragonState::Dead: {
       new (&dead) TempDragonStateDead();
+      break;
+    }
+    case DragonState::Feeding: {
+      new (&feeding) TempDragonStateFeeding();
       break;
     }
   }
@@ -70,6 +78,10 @@ void TempDragonStates::Loop(DragonState which) {
     }
     case DragonState::Dead: {
       dead.Loop();
+      break;
+    }
+    case DragonState::Feeding: {
+      feeding.Loop();
       break;
     }
   }
@@ -137,4 +149,18 @@ void TempDragonStateVibing::Loop() {
 
 void TempDragonStateDead::Loop() {
   anim.Draw();
+}
+
+void TempDragonStateFeeding::Loop() {
+  anim.Draw();
+  if(anim.loops > 0) {
+    
+    if(world.hunger > std::numeric_limits<std::underlying_type<HungerState>::type>::max() - 25) {
+      world.hunger = std::numeric_limits<std::underlying_type<HungerState>::type>::max();
+    } else {
+      world.hunger += 25;
+    }
+    
+    targetState = DragonState::Vibing;
+  }
 }

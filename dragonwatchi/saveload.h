@@ -10,6 +10,7 @@ enum class DragonState : uint8_t {
   Sleeping = 0,
   Woke,
   Vibing,
+  Feeding,
   Dead, // :(
 };
 
