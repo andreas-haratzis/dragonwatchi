@@ -1,7 +1,8 @@
 #include "dragon.h"
 #include "utils.h"
+#include "saveload.h"
 
-TempDragonStates* tempDragonState;
+TempDragonStates* tempDragonState; // TODO: Move this to static mem to free up more heap
 DragonState targetState = DragonState::Sleeping;
 
 void InitDragon() {
@@ -36,6 +37,10 @@ void TempDragonStates::SwitchTo(DragonState from, DragonState to) {
       feeding.~TempDragonStateFeeding();
       break;
     }
+    case DragonState::Playing: {
+      playing.~TempDragonStatePlaying();
+      break;
+    }
   }
 
   switch (to) {
@@ -57,6 +62,10 @@ void TempDragonStates::SwitchTo(DragonState from, DragonState to) {
     }
     case DragonState::Feeding: {
       new (&feeding) TempDragonStateFeeding();
+      break;
+    }
+    case DragonState::Playing: {
+      new (&playing) TempDragonStatePlaying();
       break;
     }
   }
@@ -84,6 +93,10 @@ void TempDragonStates::Loop(DragonState which) {
       feeding.Loop();
       break;
     }
+    case DragonState::Playing: {
+      playing.Loop();
+      break;
+    }
   }
 }
 
@@ -96,6 +109,7 @@ void TempDragonStateSleeping::Loop() {
     } else {
       memset(screenBuffer, 255, 160 * 128 * sizeof(ILI9163C_color_18_t));
       myTFT.setBacklight(0);
+      delay(1000);
     }
   } else {
     screensaverCountdownMillis -= lastFrameDurationMillis;
@@ -163,4 +177,8 @@ void TempDragonStateFeeding::Loop() {
     
     targetState = DragonState::Vibing;
   }
+}
+
+void TempDragonStatePlaying::Loop() {
+  game.Loop();
 }

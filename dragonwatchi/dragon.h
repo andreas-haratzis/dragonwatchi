@@ -2,10 +2,32 @@
 #define DRAGON_H
 
 #include "anims.h"
-#include "saveload.h"
 #include "sd.h"
+#include "flappydrag.h"
 
 #include <functional>
+
+enum class DragonState : uint8_t {
+  Sleeping = 0,
+  Woke,
+  Vibing,
+  Feeding,
+  Playing,
+  Dead, // :(
+};
+
+enum class HungerState : int8_t {
+  //Orb = 100,
+  //Fat = 75,
+  //Thicc = 50,
+  //Stuffed = 25,
+  //Full = 10,
+  Sated = 0,
+  Hungry = -8,
+  Famished = -25,
+  Starving = -50,
+  Dead = -100
+};
 
 struct TempDragonStateSleeping {
   Anim anim = LoadAnim("sleeping");
@@ -45,12 +67,19 @@ struct TempDragonStateFeeding {
   void Loop();
 };
 
+struct TempDragonStatePlaying {
+  Flappydrag game;
+  
+  void Loop();
+};
+
 union TempDragonStates {
   TempDragonStateSleeping sleeping;
   TempDragonStateWoke woke;
   TempDragonStateVibing vibing;
   TempDragonStateDead dead;
   TempDragonStateFeeding feeding;
+  TempDragonStatePlaying playing;
   
   TempDragonStates();
   ~TempDragonStates();

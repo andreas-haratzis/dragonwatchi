@@ -10,11 +10,13 @@ namespace {
   enum class Menus : uint8_t {
     Exit = 0,
     Feed,
+    Play,
     Count,
   };
   PROGMEM const char* k_menusStrings[ToIntegral(Menus::Count)] = {
     "exit",
     "feed",
+    "play",
   };
   
   Menus currentMenu;
@@ -87,6 +89,10 @@ void LoopUI() {
           targetState = DragonState::Feeding;
           ExitMenu();
           break;
+        }
+        case Menus::Play: {
+          targetState = DragonState::Playing;
+          ExitMenu();
         }
       }
     }
