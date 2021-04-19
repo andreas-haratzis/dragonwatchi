@@ -25,7 +25,12 @@ constexpr auto ToIntegral(E e) -> typename std::underlying_type<E>::type
 }
 
 std::string ToLower(const std::string str);
-
+inline void LandscapeCoordToPortrait(int &x, int &y) {
+  int tmpX = x;
+  int tmpY = y;
+  x = tmpY;
+  y = 160 - tmpX;
+}
 void Halt();
 
 #endif

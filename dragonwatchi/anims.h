@@ -14,11 +14,12 @@ struct Anim {
   Files sprites;
   size_t idx = 0;
   unsigned long lastDrawMillis;
-  const size_t loopIdx;
+  unsigned long millisRemaining = 0;
+  size_t loopIdx;
   size_t loops = 0;
   
   Anim(Files&& sprites, size_t loopIdx = 0);
-  void Draw(size_t x = 0, size_t y = 0);
+  void Draw(int x = 0, int y = 0);
 
   void Reset();
 };
